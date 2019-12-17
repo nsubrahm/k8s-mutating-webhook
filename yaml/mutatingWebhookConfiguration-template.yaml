@@ -5,7 +5,7 @@ metadata:
   labels:
     app: webhook
 webhooks:
-  - name: com.nsubrahm.NAMESPACE.APP
+  - name: com.demo.NAMESPACE.APP
     sideEffects: None
     admissionReviewVersions: ["v1", "v1beta1"]
     matchPolicy: Equivalent

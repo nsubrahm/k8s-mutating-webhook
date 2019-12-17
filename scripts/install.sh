@@ -9,7 +9,7 @@ fi
 WEBHOOK_APP=$1
 K8S_NAMESPACE=$2
 DOCKER_REPO_NAME=$3
-exit 16
+
 # The folder where the GitHub repository was cloned into.
 PROJECT_HOME=${PWD}
 # Other folders we need for this script
@@ -27,7 +27,7 @@ case "${unameOut}" in
     Darwin*)    OS_TYPE=macos;;
     *)          OS_TYPE=unsupported;;
 esac
-source ${SCRIPTS_DIR}/certs-${OS_TYPE}.sh ${APP} ${${K8S_NAMESPACE}} ${unameOut}
+source ${SCRIPTS_DIR}/certs-${OS_TYPE}.sh ${WEBHOOK_APP} ${K8S_NAMESPACE} ${unameOut}
 
 # Create image for webhook server
 [ $? -eq 0 ] && source ${SCRIPTS_DIR}/image.sh   || exit $?

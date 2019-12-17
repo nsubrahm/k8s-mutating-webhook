@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: ${APP}
+  name: WEBHOOK_APP
   labels:
-    app: ${APP}
+    app: WEBHOOK_APP
 spec:
   containers:
-    - name: ${APP}
-      image: ${DOCKER_REPO_NAME}/${WEBHOOK_APP}:0.0.0
+    - name: WEBHOOK_APP
+      image: DOCKER_REPO_NAME/WEBHOOK_APP-server:0.0.0
       imagePullPolicy: Always
       volumeMounts:
         - name: certs
@@ -20,12 +20,12 @@ spec:
   volumes:
     - name: certs
       secret:
-        secretName: ${APP}-tls-secret
+        secretName: WEBHOOK_APP-tls-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${APP}
+  name: WEBHOOK_APP
 spec:
   type: ClusterIP
   ports:
@@ -34,4 +34,4 @@ spec:
       port: 443
       targetPort: 4443
   selector:
-    app: ${APP} 
+    app: WEBHOOK_APP 

@@ -1,3 +1,4 @@
+certs/
 conf/csr.conf
 node_modules
 yaml/mutatingWebhookConfiguration.yaml

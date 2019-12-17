@@ -1,8 +1,0 @@
-spec:
-  containers:
-  - name: localize
-    image: nsubrahm/localize:0.0.0
-    imagePullPolicy: Always
-    ports:
-      - containerPort: 3001
-        protocol: TCP

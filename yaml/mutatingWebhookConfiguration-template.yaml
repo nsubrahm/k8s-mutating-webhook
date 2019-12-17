@@ -1,19 +1,19 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: webhook
+  name: WEBHOOK_APP
   labels:
-    app: webhook
+    app: WEBHOOK_APP
 webhooks:
-  - name: com.demo.NAMESPACE.APP
+  - name: com.demo.NAMESPACE.WEBHOOK_APP
     sideEffects: None
     admissionReviewVersions: ["v1", "v1beta1"]
     matchPolicy: Equivalent
     clientConfig:
       caBundle: CA_BUNDLE
       service:
-        name: webhook
-        namespace: sidecars
+        name: WEBHOOK_APP
+        namespace: NAMESPACE
         path: "/mutate"
     rules:
       - operations: [ "CREATE", "UPDATE" ]

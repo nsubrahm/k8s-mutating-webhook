@@ -1,57 +1,77 @@
 # Introduction
 
-This project demonstrates the use of sidecar pattern when developing applications for OpenShift or Kubernetes in general. In the sidecar pattern, there is a main application that implements the core business function. Often, the main application is supported by a 'helper' application. This helper application is referred to as the sidecar because, it is deployed as a container, different from the container for the main application, in the _same_ pod.
+This branch demonstrates a simple example of a Kubernetes mutating webhook implemented with NodeJS. This branch accompanies the Medium article - [Kubernetes Mutating Webhook in NodeJS - Part I - Introduction]().
 
 - [Introduction](#introduction)
   - [Quick start](#quick-start)
-    - [Pre-requisites](#pre-requisites)
-    - [Steps](#steps)
-  - [Description](#description)
-    - [Main application](#main-application)
-    - [Localization application](#localization-application)
-    - [Deployment](#deployment)
+    - [Clone repository](#clone-repository)
+    - [Launch kind](#launch-kind)
+    - [Deploy webhook server and webhook configuration](#deploy-webhook-server-and-webhook-configuration)
+    - [Start a test pod](#start-a-test-pod)
+    - [Testing the deployment](#testing-the-deployment)
+  - [How does it work](#how-does-it-work)
 
 ## Quick start
 
-### Pre-requisites
+Start with cloning the quick_start branch of the GitHub repository and change into cloned directory.
 
-- Running instance of OpenShift
-- `oc` CLI
-
-### Steps
-
-1. Clone this repository and run the following command after logging in to the OpenShift instance. While the first command creates the necessary objects for this demo, the second command will display the host to access the demo.
+### Clone repository
 
 ```bash
-oc create -f pod/sidecar-demo.yaml
-oc get route sidecar
+git clone --branch quick_start https://github.com/nsubrahm/k8s-mutating-webhook.git
+cd k8s-mutating-webhook
 ```
 
-2. To see the demo in action, use `curl` as shown in below.
+### Launch `kind`
+
+The APIs that need to be enabled in kind will be passed via a configuration file. The `kubectl` context needs to be configured to use `kind` cluster. These steps are executed with commands as shown below.
 
 ```bash
-curl https://<host>/demo/<lang>
+cd yaml
+kind create cluster --config kind.yaml
+kubectl config use-context kind-kind
 ```
 
-where _<host>_ is derived from the route definition and _<lang>_ is one of `en`, `hi` or `kn`.
+### Deploy webhook server and webhook configuration
 
-## Description
+The command shown below will deploy the webhook server (that will actually mutate the request) and the webhook configuration (that defines the webhook server to `kube-apiserver`. This command takes three arguments in this order:
 
-This project exposes a REST API endpoint at `/demo/<lang>` where _<lang>_ is one of `en`, `hi` or `kn`. The aim is to respond with message around the status of an imaginary database in a language of choice of the user. To do this, the main application simulates the enquiry of status of the imaginary database status. Whereas, the helper application would localize the status message.
+1. Webhook application name e.g. webhook in the command below.
+2. Namespace e.g. sidecars in the command below.
+3. Docker repository name e.g. your_docker_repo in the command below. The name of the image is derived from the webhook application name suffixed with `-server`. The tag of the image is set to `0.0.0` respectively.
 
-### Main application
+```bash
+scripts/install.sh webhook sidecars your_docker_repo
+```
 
-The main application is defined in `main-app` folder of this project. It can be built into a Docker image using the provided `Dockerfile`. This application listens at port `3000` and invokes the localization application for getting the localized message. For example, the main application will send a message code corresponding to the status of the database and a parameter for language code along with some parameters relevant to that particular message. Finally, this localized message is returned as a JSON document.
+### Start a test pod
 
-### Localization application
+Once the webhook server is deployed, you may have to wait a couple of seconds for it to come up. The status can be checked by running `kubectl get po/webhook -n sidecars`. The webhook server is ready to accept requests if the status is seen as `Running`. To start a test pod, run the command below.
 
-The localization application is defined in the `localize-app` folder of this project. It can be built into a Docker image using the provided `Dockerfile`. This application listens at port `3001` to apply the correct localization, with `node-localize` module, and responds back to the main application.  In response to the query from the main application, the message code with text as applicable for the required language is returned.
+```bash
+kubectl create -f pod.yaml -n sidecars
+```
 
-### Deployment
+### Testing the deployment
 
-To deploy the project in the sidecar pattern, a single pod will be deployed with each application deployed as an individual container. Further, a service and a route object will be created to expose the main application over internet. The definition of these objects are available in `pod/sidecar-demo.yaml`.
+The `pod.yaml` is written to start a pod named `demo` having a container with the image as `tutum/curl`. The webhook server will 'mutate' this YAML such that the image name is now set to `debian`. Thus, once the pod is deployed, it can be examined for the images running in the container using the command below. It will return the image name as debian as defined in the mutating webhook.
 
-Notes:
+```bash
+kubectl get po/demo -n sidecars -o jsonpath='{.spec.containers[0].image}'
+```
 
-1. This project assumes that the sidecar is reachable as a REST end-point over `http`. It is definitely possible to communicate over other protocols e.g. `tcp`, etc.
-2. The sidecar container is accessed by the main application as `localhost` since the containers are in the same pod.
+## How does it work
+
+While subseqeunt articles in this series will go into details, here is a quick explanation of how this works.
+
+1. Register a `MutatingWebhookConfiguration` as generated in `yaml/mutatingWebhookConfiguration.yaml`.
+   1. The `webhooks` is an array of webhooks that need to be invoked.
+   2. Only one webhook is defined where, the `clientConfig.service.name` points to a service that will mutate the request.
+   3. This service is available at the `/mutate` end-point as defined in `clientConfig.service.path`.
+2. Deploy the webhook application, that will mutate the request, as defined in the `webhook-deploy.yaml`.
+   1. The webhook API is _always_ invoked over `https` and port `443` by default.
+   2. The end-point should be configured with certificate and private key files. These files are generated in the `certs` directory and are used to create the `webhook-tls-secret` object.
+3. When the request is submitted with `yaml/test.yaml`:
+   1. `kube-apiserver` forwards this request to the registered webhook.
+   2. The webhook forwards the request to the end-point and service as defined in `clientConfig.service.path` (`/mutate` in this example implementation) and `clientConfig.service.name` respectively.
+   3. At the `/mutate` end-point, a response is generated where the image name in the request (i.e. `test.yaml`) is modified to hold the name `debian` - see [`mutate.js`](webhook/app/mutate.js) for details.

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webhook
+  labels:
+    app: webhook
+spec:
+  containers:
+    - name: webhook
+      image: nsubrahm/webhook-server:0.0.0
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: certs
+          mountPath: /etc/certs
+          readOnly: true
+      ports:
+        - containerPort: 4443
+          protocol: TCP
+  volumes:
+    - name: certs
+      secret:
+        secretName: webhook-tls-secret

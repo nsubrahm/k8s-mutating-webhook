@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo
+spec:
+  containers:
+    - name: demo
+      image: tutum/curl
+      command: ["/bin/sleep", "infinity"]
+      imagePullPolicy: IfNotPresent

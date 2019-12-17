@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "description": "Mutating Webhook server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chainheaed/localize-demo.git"
+  },
+  "keywords": [
+    "k8s",
+    "openshift",
+    "webhook",
+    "mutating_webhook",
+    "nodejs"
+  ],
+  "author": "chainhead",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chainheaed/localize-demo/issues"
+  },
+  "homepage": "https://github.com/chainheaed/localize-demo#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "js-base64": "^2.5.1",
+    "winston": "^3.2.1"
+  }
+}

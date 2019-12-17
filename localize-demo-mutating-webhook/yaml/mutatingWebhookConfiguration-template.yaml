@@ -1,0 +1,23 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: webhook
+  labels:
+    app: webhook
+webhooks:
+  - name: com.nsubrahm.NAMESPACE.APP
+    sideEffects: None
+    admissionReviewVersions: ["v1", "v1beta1"]
+    matchPolicy: Equivalent
+    clientConfig:
+      caBundle: CA_BUNDLE
+      service:
+        name: webhook
+        namespace: sidecars
+        path: "/mutate"
+    rules:
+      - operations: [ "CREATE", "UPDATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+        scope: "*"

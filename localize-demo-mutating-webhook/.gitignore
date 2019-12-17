@@ -1,5 +1,0 @@
-certs
-conf/csr.conf 
-yaml/csr.yaml
-yaml/mutatingWebhookConfiguration.yaml
-node_modules

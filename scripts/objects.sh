@@ -2,7 +2,7 @@
 
 # - Create secret for webhook server
 echo "Creating secret for webhook server"
-kubectl create secret tls webhook-tls-secret --cert=${CERTS_DIR}/${APP}.${K8S_NAMESPACE}.pem --key=${CERTS_DIR}/${APP}.${K8S_NAMESPACE}.key -n ${K8S_NAMESPACE}
+kubectl create secret tls ${WEBHOOK_APP}-tls-secret --cert=${CERTS_DIR}/${WEBHOOK_APP}.${K8S_NAMESPACE}.pem --key=${CERTS_DIR}/${WEBHOOK_APP}.${K8S_NAMESPACE}.key -n ${K8S_NAMESPACE}
 # - Deployment and Service for webhook server
 echo 'Deploy webhook server'
 kubectl create -f ${YAML_DIR}/webhook-deploy.yaml -n ${K8S_NAMESPACE} 

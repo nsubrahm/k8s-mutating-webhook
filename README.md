@@ -41,6 +41,7 @@ The command shown below will deploy the webhook server (that will actually mutat
 3. Docker repository name e.g. your_docker_repo in the command below. The name of the image is derived from the webhook application name suffixed with `-server`. The tag of the image is set to `0.0.0` respectively.
 
 ```bash
+cd ..
 scripts/install.sh webhook sidecars your_docker_repo
 ```
 
@@ -49,12 +50,13 @@ scripts/install.sh webhook sidecars your_docker_repo
 Once the webhook server is deployed, you may have to wait a couple of seconds for it to come up. The status can be checked by running `kubectl get po/webhook -n sidecars`. The webhook server is ready to accept requests if the status is seen as `Running`. To start a test pod, run the command below.
 
 ```bash
-kubectl create -f pod.yaml -n sidecars
+cd yaml
+kubectl create -f test.yaml -n sidecars
 ```
 
 ### Testing the deployment
 
-The `pod.yaml` is written to start a pod named `demo` having a container with the image as `tutum/curl`. The webhook server will 'mutate' this YAML such that the image name is now set to `debian`. Thus, once the pod is deployed, it can be examined for the images running in the container using the command below. It will return the image name as debian as defined in the mutating webhook.
+The `test.yaml` is written to start a pod named `demo` having a container with the image as `tutum/curl`. The webhook server will 'mutate' this YAML such that the image name is now set to `debian`. Thus, once the pod is deployed, it can be examined for the images running in the container using the command below. It will return the image name as debian as defined in the mutating webhook.
 
 ```bash
 kubectl get po/demo -n sidecars -o jsonpath='{.spec.containers[0].image}'
@@ -70,7 +72,7 @@ While subseqeunt articles in this series will go into details, here is a quick e
    3. This service is available at the `/mutate` end-point as defined in `clientConfig.service.path`.
 2. Deploy the webhook application, that will mutate the request, as defined in the `webhook-deploy.yaml`.
    1. The webhook API is _always_ invoked over `https` and port `443` by default.
-   2. The end-point should be configured with certificate and private key files. These files are generated in the `certs` directory and are used to create the `webhook-tls-secret` object.
+   2. The end-point should be configured with certificate and private key files. These files are generated in the `certs` directory and are used to create the `webhook-tls-secret` object where, the string `webhook` is derived from the application name provided to the installation script.
 3. When the request is submitted with `yaml/test.yaml`:
    1. `kube-apiserver` forwards this request to the registered webhook.
    2. The webhook forwards the request to the end-point and service as defined in `clientConfig.service.path` (`/mutate` in this example implementation) and `clientConfig.service.name` respectively.

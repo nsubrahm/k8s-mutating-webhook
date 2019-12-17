@@ -1,4 +1,5 @@
-conf/csr-template.conf
+conf/csr.conf
 node_modules
-yaml/mutatingWebhookConfiguration-template.yaml
-yaml/csr-template.yaml
+yaml/mutatingWebhookConfiguration.yaml
+yaml/csr.yaml
+yaml/webhook-deploy.yaml 

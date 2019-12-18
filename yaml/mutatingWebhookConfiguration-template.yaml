@@ -9,6 +9,7 @@ webhooks:
     sideEffects: None
     admissionReviewVersions: ["v1", "v1beta1"]
     matchPolicy: Equivalent
+    failurePolicy: Fail
     clientConfig:
       caBundle: CA_BUNDLE
       service:

@@ -64,7 +64,7 @@ kubectl get po/demo -n sidecars -o jsonpath='{.spec.containers[0].image}'
 
 ## How does it work
 
-While subseqeunt articles in this series will go into details, here is a quick explanation of how this works.
+While subsequent articles in this series will go into details, here is a quick explanation of how this works.
 
 1. Register a `MutatingWebhookConfiguration` as generated in `yaml/mutatingWebhookConfiguration.yaml`.
    1. The `webhooks` is an array of webhooks that need to be invoked.

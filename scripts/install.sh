@@ -27,6 +27,7 @@ case "${unameOut}" in
     Darwin*)    OS_TYPE=macos;;
     *)          OS_TYPE=unsupported;;
 esac
+
 source ${SCRIPTS_DIR}/certs-${OS_TYPE}.sh ${WEBHOOK_APP} ${K8S_NAMESPACE} ${unameOut}
 
 # Create image for webhook server

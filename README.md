@@ -13,12 +13,12 @@ This branch demonstrates a simple example of a Kubernetes mutating webhook imple
 
 ## Quick start
 
-Start with cloning the quick_start branch of the GitHub repository and change into cloned directory.
+Start with cloning the GitHub repository and change into cloned directory.
 
 ### Clone repository
 
 ```bash
-git clone --branch quick_start https://github.com/nsubrahm/k8s-mutating-webhook.git
+git clone https://github.com/nsubrahm/k8s-mutating-webhook.git
 cd k8s-mutating-webhook
 ```
 

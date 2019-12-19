@@ -1,6 +1,9 @@
 # Introduction
 
-This branch demonstrates a simple example of a Kubernetes mutating webhook implemented with NodeJS. This branch accompanies the Medium article - [Kubernetes Mutating Webhook in NodeJS - Part I - Introduction]().
+This branch demonstrates a simple example of a Kubernetes mutating webhook implemented with NodeJS. This branch accompanies the Medium articles: 
+
+1. [Kubernetes Mutating Webhook in NodeJS - Part I - Introduction](https://medium.com/@nageshblore/kubernetes-mutating-webhook-with-nodejs-part-i-introduction-ee33b2668af4).
+2. [Kubernetes Mutating Webhook with NodeJS— Part II — Development](https://medium.com/@nageshblore/kubernetes-mutating-webhook-part-ii-development-bec5033c591d).
 
 - [Introduction](#introduction)
   - [Quick start](#quick-start)
@@ -24,7 +27,7 @@ cd k8s-mutating-webhook
 
 ### Launch `kind`
 
-The APIs that need to be enabled in kind will be passed via a configuration file. The `kubectl` context needs to be configured to use `kind` cluster. These steps are executed with commands as shown below.
+The APIs that need to be enabled in `kind` will be passed via a configuration file. The `kubectl` context needs to be configured to use `kind` cluster. These steps are executed with commands as shown below.
 
 ```bash
 cd yaml
@@ -34,11 +37,11 @@ kubectl config use-context kind-kind
 
 ### Deploy webhook server and webhook configuration
 
-The command shown below will deploy the webhook server (that will actually mutate the request) and the webhook configuration (that defines the webhook server to `kube-apiserver`. This command takes three arguments in this order:
+The command shown below will deploy the webhook server (that will actually mutate the request) and the webhook configuration (that defines the webhook server to `kube-apiserver`). This command takes three arguments in this order:
 
-1. Webhook application name e.g. webhook in the command below.
-2. Namespace e.g. sidecars in the command below.
-3. Docker repository name e.g. your_docker_repo in the command below. The name of the image is derived from the webhook application name suffixed with `-server`. The tag of the image is set to `0.0.0` respectively.
+1. Webhook application name e.g. `webhook` in the command below.
+2. Namespace e.g. `sidecars` in the command below.
+3. Docker repository name e.g. `your_docker_repo` in the command below. The name of the image is derived from the webhook application name suffixed with `-server`. The tag of the image is set to `0.0.0`.
 
 ```bash
 cd ..
@@ -56,7 +59,7 @@ kubectl create -f test.yaml -n sidecars
 
 ### Testing the deployment
 
-The `test.yaml` is written to start a pod named `demo` having a container with the image as `tutum/curl`. The webhook server will 'mutate' this YAML such that the image name is now set to `debian`. Thus, once the pod is deployed, it can be examined for the images running in the container using the command below. It will return the image name as debian as defined in the mutating webhook.
+The `test.yaml` is written to start a pod named `demo` having a container with the image as `tutum/curl`. The webhook server will 'mutate' this YAML such that the image name is now set to `debian`. Thus, once the pod is deployed, it can be examined for the images running in the container using the command below. It will return the image name as `debian` as defined in the mutating webhook.
 
 ```bash
 kubectl get po/demo -n sidecars -o jsonpath='{.spec.containers[0].image}'
@@ -64,7 +67,7 @@ kubectl get po/demo -n sidecars -o jsonpath='{.spec.containers[0].image}'
 
 ## How does it work
 
-While subsequent articles in this series will go into details, here is a quick explanation of how this works.
+Here is a quick explanation of how the mutation happens. For details, see [Kubernetes Mutating Webhook with NodeJS— Part II — Development](https://medium.com/@nageshblore/kubernetes-mutating-webhook-part-ii-development-bec5033c591d).
 
 1. Register a `MutatingWebhookConfiguration` as generated in `yaml/mutatingWebhookConfiguration.yaml`.
    1. The `webhooks` is an array of webhooks that need to be invoked.

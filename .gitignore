@@ -4,3 +4,5 @@ node_modules
 yaml/mutatingWebhookConfiguration.yaml
 yaml/csr.yaml
 yaml/webhook-deploy.yaml
+yaml/ca-secret.yaml
+yaml/ca-issuer.yaml

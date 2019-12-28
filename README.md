@@ -48,15 +48,11 @@ cd ..
 scripts/prereqs.sh webhook sidecars
 ```
 
+With the certificate in place, the webhook can be installed with `helm` as described in the [Install `helm` chart](#install-helm-chart) section.
+
 ### Generate new certificate
 
-Edit the YAML below such that `WEBHOOK_APP` is replaced with webhook application name (e.g. `webhook`) and `K8S_NAMESPACE` is replaced with a namespace value (e.g. `sidecars`). Save the YAML as `certificate.yaml`. 
-
-```bash
-kubectl create -f certificate.yaml
-```
-
-Then, create the certificate with the following command.
+Edit the YAML below such that `WEBHOOK_APP` is replaced with webhook application name (e.g. `webhook`) and `K8S_NAMESPACE` is replaced with a namespace value (e.g. `sidecars`). Save the YAML as `certificate.yaml`.
 
 ```yaml
 apiVersion: cert-manager.io/v1alpha2
@@ -71,7 +67,7 @@ spec:
   dnsNames:
     - WEBHOOK_APP
     - WEBHOOK_APP.K8S_NAMESPACE
-    - WEBHOOK_APP.K8S_NAMESPACE.svc 
+    - WEBHOOK_APP.K8S_NAMESPACE.svc
     - WEBHOOK_APP.K8S_NAMESPACE.svc.cluster.local
   usages:
     - server auth
@@ -80,17 +76,26 @@ spec:
     name: WEBHOOK_APP-ca-issuer
 ```
 
-With the certificate in place, the webhook can be installed with `helm`as described in the following section.
+Then, create the certificate with the following command.
+
+```bash
+kubectl create -f certificate.yaml
+```
+
+With the certificate in place, the webhook can be installed with `helm` as described in the following section.
 
 ### Install `helm` chart
 
 The `MutatingWebhookConfiguration` requires `caBundle` to be configured with a string that is PEM encoded CA bundle. This string can be obtained with `kubectl get secret/secretName -n namesapce -o jsonpath='{ .data.ca\.crt }'`. Since, `helm` charts do not have an option to pass on output of [arbitrary commands in templates](https://github.com/helm/helm/issues/5145#issuecomment-453646897), the `caBundle` will have to be passed as a string from command line as shown below.
 
 ```bash
-helm install webhook ./webhook --set webhookApp=webhook,k8sNamespace=sidecars,caBundle=$(kubectl get secret/webhook-cert-tls-secret -o jsonpath='{ .data.ca\.crt }')
+helm install webhook ./webhook --set \
+webhookApp=webhook, \
+caBundle=$(kubectl get secret/webhook-cert-tls-secret -n sidecars -o jsonpath='{ .data.ca\.crt }')
+-n sidecars
 ```
 
-Note that, the name of secret in `kubectl` command is same as `spec.secretName` in `certificate.yaml` as described in previous section.
+Note that, the name of secret in `kubectl` command is same as `spec.secretName` in `certificate.yaml` as described in previous section. Also, the namespace is same as set when creating certificate.
 
 ### Start a test pod
 
@@ -119,7 +124,7 @@ Here is a quick explanation of how the mutation happens. For details, see [Kuber
    3. This service is available at the `/mutate` end-point as defined in `clientConfig.service.path`.
 2. Deploy the webhook application, that will mutate the request, as defined in the `webhook-deploy.yaml`.
    1. The webhook API is _always_ invoked over `https` and port `443` by default.
-   2. The end-point should be configured with certificate and private key files. These files are generated in the `certs` directory and are used to create the `webhook-tls-secret` object where, the string `webhook` is derived from the application name provided to the installation script.
+   2. The end-point should be configured with certificate and private key files. These files are generated in the `certs` directory and are used to create the `webhook-cert-tls-secret` object where, the string `webhook` is derived from the application name provided to the installation script.
 3. When the request is submitted with `yaml/test.yaml`:
    1. `kube-apiserver` forwards this request to the registered webhook.
    2. The webhook forwards the request to the end-point and service as defined in `clientConfig.service.path` (`/mutate` in this example implementation) and `clientConfig.service.name` respectively.

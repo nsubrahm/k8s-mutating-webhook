@@ -63,7 +63,7 @@ Create the name of the service account to use
 {{- end -}}
 
 {{- define "mutatingWebhookName" -}}
-{{- printf "%s.%s.%s" "com.demo" .Values.configuration.webhookApp  .Values.configuration.k8sNamespace -}}
+{{- printf "%s.%s.%s" "com.demo" .Values.configuration.webhookApp  .Release.Namespace -}}
 {{- end -}}
 
 {{- define "webhookCertificateName" -}}
@@ -71,23 +71,23 @@ Create the name of the service account to use
 {{- end -}}
 
 {{- define "webhookCertificateOrganisation" -}}
-{{- printf "%s.%s.%s" .Values.configuration.webhookApp  .Values.configuration.k8sNamespace "com" -}}
+{{- printf "%s.%s.%s" .Values.configuration.webhookApp  .Release.Namespace "com" -}}
 {{- end -}}
 
 {{- define "webhookCertificateCommonName" -}}
-{{- printf "%s.%s.%s" .Values.configuration.webhookApp  .Values.configuration.k8sNamespace "svc" -}}
+{{- printf "%s.%s.%s" .Values.configuration.webhookApp  .Release.Namespace "svc" -}}
 {{- end -}}
 
 {{- define "webhookCertificateDns2" -}}
-{{- printf "%s.%s" .Values.configuration.webhookApp  .Values.configuration.k8sNamespace -}}
+{{- printf "%s.%s" .Values.configuration.webhookApp  .Release.Namespace -}}
 {{- end -}}
 
 {{- define "webhookCertificateDns3" -}}
-{{- printf "%s.%s.%s" .Values.configuration.webhookApp  .Values.configuration.k8sNamespace "svc" -}}
+{{- printf "%s.%s.%s" .Values.configuration.webhookApp  .Release.Namespace "svc" -}}
 {{- end -}}
 
 {{- define "webhookCertificateDns4" -}}
-{{- printf "%s.%s.%s" .Values.configuration.webhookApp  .Values.configuration.k8sNamespace "svc.cluster.local" -}}
+{{- printf "%s.%s.%s" .Values.configuration.webhookApp  .Release.Namespace "svc.cluster.local" -}}
 {{- end -}}
 
 {{- define "webhookCertificateSecretName" -}}

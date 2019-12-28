@@ -6,7 +6,6 @@
 
 configuration:
   webhookApp: webhook
-  k8sNamespace: sidecars
 
 
 # The following values were created from the helm create command

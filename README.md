@@ -10,7 +10,8 @@ This branch demonstrates a simple example of a Kubernetes mutating webhook imple
     - [Clone repository](#clone-repository)
     - [Launch kind](#launch-kind)
     - [Set-up certificate manager](#set-up-certificate-manager)
-    - [Deploy webhook server and webhook configuration](#deploy-webhook-server-and-webhook-configuration)
+    - [Generate new certificate](#generate-new-certificate)
+    - [Install helm chart](#install-helm-chart)
     - [Start a test pod](#start-a-test-pod)
     - [Testing the deployment](#testing-the-deployment)
   - [How does it work](#how-does-it-work)
@@ -38,26 +39,58 @@ kubectl config use-context kind-kind
 
 ### Set-up certificate manager
 
-If the Kubernetes installation has `cert-manager` already installed, then go to [next section](#deploy-webhook-server-and-webhook-configuration).
+If the Kubernetes installation has `cert-manager` already installed, then generate a new certificate as described in [next section](#generate-new-certificate).
 
-To install certificate manager and set-up and `Issuer` as a self-signed CA, use the command below.
+To install certificate manager, set-up and `Issuer` as a self-signed CA and generate a certificate, use the command below.
 
 ```bash
 cd ..
 scripts/prereqs.sh webhook sidecars
 ```
 
-### Deploy webhook server and webhook configuration
+### Generate new certificate
 
-The command shown below will deploy the webhook server (that will actually mutate the request) and the webhook configuration (that defines the webhook server to `kube-apiserver`). This command takes two arguments in this order:
-
-1. Webhook application name e.g. `webhook` in the command below.
-2. Namespace e.g. `sidecars` in the command below.
+Edit the YAML below such that `WEBHOOK_APP` is replaced with webhook application name (e.g. `webhook`) and `K8S_NAMESPACE` is replaced with a namespace value (e.g. `sidecars`). Save the YAML as `certificate.yaml`. 
 
 ```bash
-cd ..
-scripts/install.sh webhook sidecars
+kubectl create -f certificate.yaml
 ```
+
+Then, create the certificate with the following command.
+
+```yaml
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: WEBHOOK_APP-cert
+  namespace: K8S_NAMESPACE
+spec:
+  organization:
+    - WEBHOOK_APP.K8S_NAMESPACE.com
+  commonName: WEBHOOK_APP.K8S_NAMESPACE.svc
+  dnsNames:
+    - WEBHOOK_APP
+    - WEBHOOK_APP.K8S_NAMESPACE
+    - WEBHOOK_APP.K8S_NAMESPACE.svc 
+    - WEBHOOK_APP.K8S_NAMESPACE.svc.cluster.local
+  usages:
+    - server auth
+  secretName: WEBHOOK_APP-cert-tls-secret
+  issuerRef:
+    name: WEBHOOK_APP-ca-issuer
+```
+
+With the certificate in place, the webhook can be installed with `helm`as described in the following section.
+
+### Install `helm` chart
+
+The `MutatingWebhookConfiguration` requires `caBundle` to be configured with a string that is PEM encoded CA bundle. This string can be obtained with `kubectl get secret/secretName -n namesapce -o jsonpath='{ .data.ca\.crt }'`. Since, `helm` charts do not have an option to pass on output of [arbitrary commands in templates](https://github.com/helm/helm/issues/5145#issuecomment-453646897), the `caBundle` will have to be passed as a string from command line as shown below.
+
+```bash
+helm install webhook ./webhook --set webhookApp=webhook,k8sNamespace=sidecars,caBundle=$(kubectl get secret/webhook-cert-tls-secret -o jsonpath='{ .data.ca\.crt }')
+```
+
+Note that, the name of secret in `kubectl` command is same as `spec.secretName` in `certificate.yaml` as described in previous section.
 
 ### Start a test pod
 

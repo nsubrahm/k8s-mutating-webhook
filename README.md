@@ -9,6 +9,7 @@ This branch demonstrates a simple example of a Kubernetes mutating webhook imple
   - [Quick start](#quick-start)
     - [Clone repository](#clone-repository)
     - [Launch kind](#launch-kind)
+    - [Set-up certificate manager](#set-up-certificate-manager)
     - [Deploy webhook server and webhook configuration](#deploy-webhook-server-and-webhook-configuration)
     - [Start a test pod](#start-a-test-pod)
     - [Testing the deployment](#testing-the-deployment)
@@ -35,17 +36,27 @@ kind create cluster --config kind.yaml
 kubectl config use-context kind-kind
 ```
 
-### Deploy webhook server and webhook configuration
+### Set-up certificate manager
 
-The command shown below will deploy the webhook server (that will actually mutate the request) and the webhook configuration (that defines the webhook server to `kube-apiserver`). This command takes three arguments in this order:
+If the Kubernetes installation has `cert-manager` already installed, then go to [next section](#deploy-webhook-server-and-webhook-configuration).
 
-1. Webhook application name e.g. `webhook` in the command below.
-2. Namespace e.g. `sidecars` in the command below.
-3. Docker repository name e.g. `your_docker_repo` in the command below. The name of the image is derived from the webhook application name suffixed with `-server`. The tag of the image is set to `0.0.0`.
+To install certificate manager and set-up and `Issuer` as a self-signed CA, use the command below.
 
 ```bash
 cd ..
-scripts/install.sh webhook sidecars your_docker_repo
+scripts/prereqs.sh webhook sidecars
+```
+
+### Deploy webhook server and webhook configuration
+
+The command shown below will deploy the webhook server (that will actually mutate the request) and the webhook configuration (that defines the webhook server to `kube-apiserver`). This command takes two arguments in this order:
+
+1. Webhook application name e.g. `webhook` in the command below.
+2. Namespace e.g. `sidecars` in the command below.
+
+```bash
+cd ..
+scripts/install.sh webhook sidecars
 ```
 
 ### Start a test pod

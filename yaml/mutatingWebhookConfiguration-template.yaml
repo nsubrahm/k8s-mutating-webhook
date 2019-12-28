@@ -5,7 +5,7 @@ metadata:
   labels:
     app: WEBHOOK_APP
 webhooks:
-  - name: com.demo.NAMESPACE.WEBHOOK_APP
+  - name: com.demo.K8S_NAMESPACE.WEBHOOK_APP
     sideEffects: None
     admissionReviewVersions: ["v1", "v1beta1"]
     matchPolicy: Equivalent
@@ -14,7 +14,7 @@ webhooks:
       caBundle: CA_BUNDLE
       service:
         name: WEBHOOK_APP
-        namespace: NAMESPACE
+        namespace: K8S_NAMESPACE
         path: "/mutate"
     rules:
       - operations: [ "CREATE", "UPDATE" ]

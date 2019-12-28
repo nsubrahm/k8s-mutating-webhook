@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
     - name: WEBHOOK_APP
-      image: DOCKER_REPO_NAME/WEBHOOK_APP-server:0.0.0
+      image: nsubrahm/webhook-server:0.0.0
       imagePullPolicy: Always
       volumeMounts:
         - name: certs
@@ -17,10 +17,14 @@ spec:
       ports:
         - containerPort: 4443
           protocol: TCP
+      resources:
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
   volumes:
     - name: certs
       secret:
-        secretName: WEBHOOK_APP-tls-secret 
+        secretName: WEBHOOK_APP-cert-tls-secret 
 ---
 apiVersion: v1
 kind: Service

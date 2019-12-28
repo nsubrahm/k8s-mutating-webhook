@@ -1,8 +1,7 @@
 certs/
-conf/csr.conf
-node_modules
-yaml/mutatingWebhookConfiguration.yaml
-yaml/csr.yaml
-yaml/webhook-deploy.yaml
+conf/crt.conf
 yaml/ca-secret.yaml
 yaml/ca-issuer.yaml
+yaml/certificate.yaml
+yaml/mutatingWebhookConfiguration.yaml
+yaml/webhook-deploy.yaml

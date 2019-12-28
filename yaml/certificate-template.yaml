@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: WEBHOOK_APP-cert
+  namespace: K8S_NAMESPACE
+spec:
+  organization:
+    - WEBHOOK_APP.K8S_NAMESPACE.com
+  commonName: WEBHOOK_APP.K8S_NAMESPACE.svc
+  dnsNames:
+    - WEBHOOK_APP
+    - WEBHOOK_APP.K8S_NAMESPACE
+    - WEBHOOK_APP.K8S_NAMESPACE.svc 
+    - WEBHOOK_APP.K8S_NAMESPACE.svc.cluster.local
+  usages:
+    - server auth
+  secretName: WEBHOOK_APP-cert-tls-secret
+  issuerRef:
+    name: WEBHOOK_APP-ca-issuer

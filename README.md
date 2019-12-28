@@ -1,6 +1,6 @@
 # Introduction
 
-This branch demonstrates a simple example of a Kubernetes mutating webhook implemented with NodeJS. This branch accompanies the Medium articles: 
+This branch demonstrates a simple example of a Kubernetes mutating webhook implemented with NodeJS. This branch accompanies the Medium articles:
 
 1. [Kubernetes Mutating Webhook in NodeJS - Part I - Introduction](https://medium.com/@nageshblore/kubernetes-mutating-webhook-with-nodejs-part-i-introduction-ee33b2668af4).
 2. [Kubernetes Mutating Webhook with NodeJS— Part II — Development](https://medium.com/@nageshblore/kubernetes-mutating-webhook-part-ii-development-bec5033c591d).

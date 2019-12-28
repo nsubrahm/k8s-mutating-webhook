@@ -1,8 +1,13 @@
 #!/bin/bash
 #
 # This script needs to be run for a Kubernetes installation that does not have cert-manager (https://cert-manager.io/) installed.
-# It installs a self-signed CA issuer.
+# It installs a self-signed CA issuer and generates a certificate from the same.
 #
+# Command line arguments
+if [ $# -ne 2 ]; then
+   echo 'USAGE: prereqs.sh WEBHOOK_APP K8S_NAMESPACE'
+   exit 8
+fi
 # Variables set-up
 ##  - CLI arguments
 WEBHOOK_APP=$1
@@ -47,6 +52,10 @@ sed -i '' "s/TLS_CRT/${TLS_CRT}/g" ${YAML_DIR}/ca-secret.yaml
 ##  - Create Issuer YAML
 sed "s/K8S_NAMESPACE/${K8S_NAMESPACE}/g" ${YAML_DIR}/ca-issuer-template.yaml > ${YAML_DIR}/ca-issuer.yaml
 sed -i '' "s/WEBHOOK_APP/${WEBHOOK_APP}/g" ${YAML_DIR}/ca-issuer.yaml
+##  - Create new Certificate with the Issuer created above.
+sed "s/WEBHOOK_APP/${WEBHOOK_APP}/g" ${YAML_DIR}/certificate-template.yaml > ${YAML_DIR}/certificate.yaml
+sed -i ''  "s/K8S_NAMESPACE/${K8S_NAMESPACE}/g" ${YAML_DIR}/certificate.yaml
 ##  - Create objects
 kubectl create -f ${YAML_DIR}/ca-secret.yaml 
 kubectl create -f ${YAML_DIR}/ca-issuer.yaml
+kubectl create -f ${YAML_DIR}/certificate.yaml

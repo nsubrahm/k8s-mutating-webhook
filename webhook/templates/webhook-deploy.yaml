@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Values.configuration.webhookApp }}
+  namespace: {{ .Values.configuration.k8sNamespace }}
+  labels:
+    app: {{ .Values.configuration.webhookApp }}
+spec:
+  containers:
+    - name: {{ .Values.configuration.webhookApp }}
+      image: nsubrahm/webhook-server:0.0.0
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: certs
+          mountPath: /etc/certs
+          readOnly: true
+      ports:
+        - containerPort: 4443
+          protocol: TCP
+      resources:
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+  volumes:
+    - name: certs
+      secret:
+        secretName: {{ template "webhookCertificateSecretName" . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.configuration.webhookApp }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: 4443-tcp
+      protocol: TCP
+      port: 443
+      targetPort: 4443
+  selector:
+    app: {{ .Values.configuration.webhookApp }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ .Values.configuration.webhookApp }}
+  namespace: {{ .Values.configuration.k8sNamespace }}
+  labels:
+    app: {{ .Values.configuration.webhookApp }}
+webhooks:
+  - name: {{ template "mutatingWebhookName" . }}
+    sideEffects: None
+    admissionReviewVersions: ["v1", "v1beta1"]
+    matchPolicy: Equivalent
+    failurePolicy: Fail
+    clientConfig:
+      caBundle: {{ .Values.caBundle }}
+      service:
+        name: {{ .Values.configuration.webhookApp }}
+        namespace: {{ .Values.configuration.k8sNamespace }}
+        path: "/mutate"
+    rules:
+      - operations: [ "CREATE", "UPDATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+        scope: "*"

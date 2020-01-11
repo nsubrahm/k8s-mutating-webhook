@@ -23,7 +23,7 @@ Start with cloning the GitHub repository and change into cloned directory.
 ### Clone repository
 
 ```bash
-git clone https://github.com/nsubrahm/k8s-mutating-webhook.git
+git clone --branch helm https://github.com/nsubrahm/k8s-mutating-webhook.git
 cd k8s-mutating-webhook
 ```
 
